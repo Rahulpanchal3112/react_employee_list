@@ -1,9 +1,18 @@
 body {
   margin: 0;
-  font-family: Inter, sans-serif;
+  /* font-family: Inter, sans-serif; */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* background-image: url("https://assets-global.website-files.com/5a9ee6416e90d20001b20038/635abaadb1e2376643db4fcb_horizontal%20(83).svg");
+  background-repeat: no-repeat;
+  background-size: cover; */
+  background-color: #f6f9fc;
+  color: #475467 !important;
+  /* font-family: Inter, sans-serif; */
+  font-size: 1rem;
+  line-height: 1.5;
 }
+
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

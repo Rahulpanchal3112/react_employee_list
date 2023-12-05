@@ -25,6 +25,10 @@ const ListingList = () => {
   const [editedIssue, setEditedIssue] = useState({});
   const [editableRow, setEditableRow] = useState(null);
 
+  const [issueError, setIssueError] = useState("");
+  const [actualTimeError, setActualTimeError] = useState("");
+  const [estimatedTimeError, setEstimatedTimeError] = useState("");
+
   const handleEdit = (item_index) => {
     setEditableRow(item_index === editableRow ? null : item_index);
     const singleEmployeeData = employeeData?.Issues[item_index];
@@ -37,15 +41,75 @@ const ListingList = () => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+
+    switch (name) {
+      case "issue":
+        setIssueError("");
+        break;
+      case "ActualTime":
+        setActualTimeError("");
+        break;
+      default:
+        setEstimatedTimeError("");
+    }
     setEditedIssue({
       ...editedIssue,
       [name]: value,
     });
   };
 
+  console.log("editedIssue", editedIssue);
+
+  const validate = () => {
+    let isValid = true;
+
+    console.log("editedIssue.issue.length ", editedIssue.issue.length);
+
+    // Description validation
+    if (!editedIssue.issue || editedIssue.issue.trim().length === 0) {
+      setIssueError("Description is required");
+      isValid = false;
+    } else if (editedIssue.issue.length > 300) {
+      setIssueError("Description should be > 300  words");
+      isValid = false;
+    } else {
+      setIssueError("");
+    }
+
+    // ActualTime validation
+    if (!editedIssue.ActualTime) {
+      setActualTimeError("required filed");
+      isValid = false;
+    } else {
+      setActualTimeError("");
+    }
+
+    // EstimatedTime validation
+    if (!editedIssue.EstimatedTime) {
+      setEstimatedTimeError("required filed");
+      isValid = false;
+    } else {
+      setEstimatedTimeError("");
+    }
+
+    return isValid;
+  };
   const handleSave = () => {
-    dispatch(UpdateEmployee(editedIssue));
-    setEditableRow(null);
+    const isValid = validate();
+    if (isValid) {
+      dispatch(UpdateEmployee(editedIssue));
+      setEditableRow(null);
+      setUpdateData();
+    }
+  };
+
+  const handleDelete = (item_index) => {
+    const delete_data = {
+      user: Employee_selected_data?.user,
+      id: item_index,
+      date: userSelected_date,
+    };
+    dispatch(RemoveEmployeeIssue(delete_data));
     setUpdateData();
   };
 
@@ -67,29 +131,23 @@ const ListingList = () => {
     dispatch(setListFilter(Datewise_filter_issues));
   };
 
-  const handleDelete = (item_index) => {
-    const delete_data = {
-      user: Employee_selected_data?.user,
-      id: item_index,
-    };
-    dispatch(RemoveEmployeeIssue(delete_data));
-  };
+  console.log("employeeData", employeeData);
 
   return (
     <>
       <MainListing>
         {employeeData && Object.keys(employeeData).length > 0 && (
           <MainHeader>
-            <Listingdiv>
+            <ListingHeaderdiv>
               <IssueDescription>
-                <IssueheaderText>Description</IssueheaderText>
+                <IssueheaderText>Issue Details</IssueheaderText>
               </IssueDescription>
               <Timeduration>
-                <ActualTime>Actual Time</ActualTime>
-                <EstimetedTime>Estimated Time</EstimetedTime>
+                <ActualTime>Actual Hours</ActualTime>
+                <EstimetedTime>Estimated Hours</EstimetedTime>
               </Timeduration>
               <Actions>Action</Actions>
-            </Listingdiv>
+            </ListingHeaderdiv>
           </MainHeader>
         )}
 
@@ -105,11 +163,13 @@ const ListingList = () => {
                       <TextField
                         id={`issue-${index}`}
                         multiline
-                        rows={4}
+                        rows={3}
                         value={editedIssue.issue || ""}
                         variant="standard"
                         onChange={handleChange}
                         name="issue"
+                        error={!!issueError}
+                        helperText={issueError}
                       />
                     ) : (
                       <Typography>{list_data?.issue}</Typography>
@@ -119,17 +179,26 @@ const ListingList = () => {
                 <Timeduration>
                   {isEditable ? (
                     <>
-                      <input
-                        type="text"
+                      <TimeText
+                        id="standard-basic"
+                        label="ActualTime"
+                        variant="standard"
                         value={editedIssue.ActualTime || ""}
                         onChange={handleChange}
                         name="ActualTime"
+                        error={!!actualTimeError}
+                        helperText={actualTimeError}
                       />
-                      <input
-                        type="text"
+
+                      <TimeText
+                        id="standard-basic"
+                        label="EstimatedTime"
+                        variant="standard"
                         value={editedIssue.EstimatedTime || ""}
                         onChange={handleChange}
                         name="EstimatedTime"
+                        error={!!estimatedTimeError}
+                        helperText={estimatedTimeError}
                       />
                     </>
                   ) : (
@@ -141,9 +210,9 @@ const ListingList = () => {
 
                   <Actions>
                     {isEditable ? (
-                      <Button variant="contained" onClick={handleSave}>
+                      <EditSavebtn variant="contained" onClick={handleSave}>
                         Save
-                      </Button>
+                      </EditSavebtn>
                     ) : (
                       <IconButton onClick={() => handleEdit(index)}>
                         <EditIcon />
@@ -151,7 +220,7 @@ const ListingList = () => {
                     )}
 
                     <IconButton onClick={() => handleDelete(index)}>
-                      <DeleteIcon />
+                      {!isEditable && <DeleteIcon />}
                     </IconButton>
                   </Actions>
                 </Timeduration>
@@ -159,6 +228,14 @@ const ListingList = () => {
             </React.Fragment>
           );
         })}
+        {employeeData?.Issues?.length === 0 ? (
+          <Spantext>
+            No Results Found <br></br>
+            We Could Not Find Any Results Please Add Details
+          </Spantext>
+        ) : (
+          ""
+        )}
       </MainListing>
     </>
   );
@@ -166,24 +243,86 @@ const ListingList = () => {
 
 export default ListingList;
 
-const MainHeader = styled.div``;
+const Spantext = styled.div`
+  display: flex;
+  justify-content: center;
+  height: 138px;
+  font-weight: 600;
+  font-family: Poppins, sans-serif !important;
+  background-color: #fff;
+  border-bottom: 1px solid #eaecf0 !important;
+  gap: 15px;
+  align-items: center;
+  text-align: center;
+`;
+
+const DescriptionText = styled(TextField)`
+  width: 100% !important;
+`;
+
+const TimeText = styled(TextField)`
+  width: 150px; !important;
+`;
+
+const EditSavebtn = styled(Button)`
+  width: 100px !important;
+  border: 1px solid #f05537 !important;
+  background-color: #f05537 !important;
+  font-weight: 600 !important;
+  line-height: 1.25rem !important;
+  color: white !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  height: 2.5rem !important;
+  font-size: 1rem !important;
+  border-radius: 5px !important;
+  font-family: Poppins, sans-serif !important;
+  text-transform: capitalize !important;
+`;
+
+const MainHeader = styled.div`
+  background-color: #f05537;
+`;
 
 const IssueheaderText = styled.div`
   text-align: center;
 `;
 
-const MainListing = styled.div``;
+const MainListing = styled.div`
+  margin-top: 25px;
+  /* border: 1px solid #eaecf0; */
+`;
+
+const ListingHeaderdiv = styled.div`
+  color: white !important;
+  align-items: center;
+  display: flex;
+  /* padding-bottom: 10px; */
+  justify-content: center;
+  height: 40px;
+  font-weight: 600;
+  font-family: Poppins, sans-serif !important;
+`;
 
 const Listingdiv = styled.div`
-  align-items: center;
-  /* justify-content: space-between; */
+  /* color: #101828 !important; */
+
   display: flex;
-  padding-bottom: 10px;
   justify-content: center;
+  height: 138px;
+  font-weight: 600;
+  font-family: Poppins, sans-serif !important;
+  background-color: #fff;
+  border-bottom: 1px solid #eaecf0 !important;
+  gap: 15px;
 `;
 
 const IssueDescription = styled.div`
   width: 800px;
+  word-wrap: break-word !important;
+  padding-top: 10px;
+  padding-bottom: 10px;
 `;
 
 const ActualTime = styled.div`
@@ -196,15 +335,21 @@ const EstimetedTime = styled.div`
   text-align: center;
 `;
 
-const IssueText = styled.div``;
+const IssueText = styled.div`
+  .MuiTextField-root {
+    width: 100% !important;
+  }
+`;
 
 const Timeduration = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 15px !important;
 `;
 
 const Actions = styled.div`
   width: 100px;
   text-align: center;
+  display: flex;
 `;

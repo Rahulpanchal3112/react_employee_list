@@ -42,24 +42,49 @@ const employeeDataSlice = createSlice({
         action.payload;
       const foundUser = state.users.find((userData) => userData.user === user);
 
-      if (foundUser && foundUser.Issues[id]) {
-        foundUser.Issues[id] = {
-          issue,
-          EstimatedTime,
-          ActualTime,
-          Date,
-        };
-        saveStateToLocalStorage(state.users);
+      if (foundUser) {
+        const dateWiseRecords = foundUser.Issues.filter(
+          (item) => item.Date === Date
+        );
+
+        if (dateWiseRecords.length > id) {
+          const indexToUpdate = foundUser.Issues.findIndex(
+            (item) => item === dateWiseRecords[id]
+          );
+
+          if (indexToUpdate !== -1) {
+            foundUser.Issues[indexToUpdate] = {
+              issue,
+              EstimatedTime,
+              ActualTime,
+              Date,
+            };
+
+            saveStateToLocalStorage(state.users);
+          }
+        }
       }
     },
 
     RemoveEmployeeIssue: (state, action) => {
-      const { id, user } = action.payload;
+      const { user, date, id } = action.payload;
       const foundUser = state.users.find((userData) => userData.user === user);
+
       if (foundUser) {
-        if (id >= 0 && id < foundUser.Issues.length) {
-          foundUser.Issues.splice(id, 1);
-          saveStateToLocalStorage(state.users);
+        const dateWiseRecords = foundUser.Issues.filter(
+          (item) => item.Date === date
+        );
+
+        if (dateWiseRecords.length > id) {
+          const indexToDelete = foundUser.Issues.findIndex(
+            (item) => item === dateWiseRecords[id]
+          );
+
+          if (indexToDelete !== -1) {
+            foundUser.Issues.splice(indexToDelete, 1);
+
+            saveStateToLocalStorage(state.users);
+          }
         }
       }
     },

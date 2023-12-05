@@ -13,8 +13,8 @@ const Dashboard = () => {
     <>
       <Maindiv>
         <Header />
-        <ListingList />
         {showForm && <AddIssueForm />}
+        <ListingList />
       </Maindiv>
     </>
   );
@@ -25,5 +25,5 @@ export default Dashboard;
 const Maindiv = styled.div`
   width: 100% !important;
   min-height: 100vh !important;
-  padding: 25px;
+  padding: 25px 200px;
 `;

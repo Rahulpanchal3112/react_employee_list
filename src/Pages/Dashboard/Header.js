@@ -107,7 +107,7 @@ const Header = () => {
             <Box sx={{ minWidth: 120 }}>
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label">Employees</InputLabel>
-                <Select
+                <SelectDropdown
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={age}
@@ -123,7 +123,7 @@ const Header = () => {
                         );
                       })
                     : ""}
-                </Select>
+                </SelectDropdown>
               </FormControl>
             </Box>
           </DropdownList>
@@ -138,24 +138,26 @@ const Header = () => {
             />
           </div>
           <div>
-            <Button
+            <StyledButton
               variant="contained"
               onClick={handleOpen}
               sx={{ textTransform: "capitalize" }}
             >
-              Add User
-            </Button>
+              Add Employee
+            </StyledButton>
           </div>
-          <div>
-            <Button
-              variant="contained"
-              onClick={handleOpenForm}
-              disabled={showButton}
-              sx={{ textTransform: "capitalize" }}
-            >
-              Add Description
-            </Button>
-          </div>
+          {!showButton && (
+            <div>
+              <StyledButton
+                variant="contained"
+                onClick={handleOpenForm}
+                // disabled={showButton}
+                sx={{ textTransform: "capitalize" }}
+              >
+                Add Issues
+              </StyledButton>
+            </div>
+          )}
         </Datelist>
         <div>
           <Modal
@@ -175,13 +177,13 @@ const Header = () => {
                 sx={{ mt: 2, width: "100%" }}
                 onChange={(e) => setEmployeeName(e.target.value)}
               />
-              <Button
+              <StyledButton
                 variant="contained"
                 sx={{ mt: 2 }}
                 onClick={handleAddEmployee}
               >
                 Add +
-              </Button>
+              </StyledButton>
             </Box>
           </Modal>
         </div>
@@ -192,11 +194,41 @@ const Header = () => {
 
 export default Header;
 
+const SelectDropdown = styled(Select)`
+  /* &.Mui-focused {
+    .MuiOutlinedInput-notchedOutline {
+      border: 1px solid #84adff !important;
+      box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05), 0 0 0 4px #d1e0ff !important;
+      color: #101828 !important;
+    }
+
+    /* Other focused styles for the select */
+`;
+
+const StyledButton = styled(Button)`
+  border: 1px solid #f05537 !important;
+  background-color: #f05537 !important;
+  font-weight: 600 !important;
+  line-height: 1.25rem !important;
+  color: white !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  height: 2.5rem !important;
+  font-size: 1rem !important;
+  border-radius: 5px !important;
+  font-family: Poppins, sans-serif !important;
+`;
+
 const Headerdiv = styled.div`
   width: 100% !important;
   padding: 25px;
   display: flex;
   gap: 100px !important;
+  border: 1px solid #eaecf0;
+  background-color: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 5px 28px #0000000f;
 `;
 
 const ModalTextfield = styled(TextField)`

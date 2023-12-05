@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
@@ -11,6 +11,7 @@ import Button from "@mui/material/Button";
 import { setEmployeeIssues } from "../../Redux/reducers/employeeDataSlice";
 import { setListFilter } from "../../Redux/reducers/employeelistDataSlice";
 import { setFilter } from "../../Redux/reducers/employeeFiterSlice";
+import { setopenFormstate } from "../../Redux/reducers/openformSlice";
 // import { setEmployeeIssues } from "../../Redux/reducers/employeeDataSlice";
 
 const AddIssueForm = () => {
@@ -21,6 +22,7 @@ const AddIssueForm = () => {
   const Employee_selected_data = useSelector(
     (state) => state?.employeefilterData?.employeeFilter
   );
+  const showForm = useSelector((state) => state?.setForm?.open);
   const [age, setAge] = React.useState("");
   const [Issues, setIssues] = useState({
     issue: "",
@@ -30,6 +32,10 @@ const AddIssueForm = () => {
     user: "",
   });
 
+  const [issueError, setIssueError] = useState("");
+  const [actualTimeError, setActualTimeError] = useState("");
+  const [estimatedTimeError, setEstimatedTimeError] = useState("");
+
   useEffect(() => {
     setIssues({
       ...Issues,
@@ -38,25 +44,71 @@ const AddIssueForm = () => {
     });
   }, [userSelected_date, Employee_selected_data]);
 
-  // useEffect(() => {
-  //   setIssues({
-  //     ...Issues,
-  //     user: Employee_selected_data?.user,
-  //   });
-  // }, [Employee_selected_data]);
-
   const handleChange = (event) => {
     const { name, value } = event.target;
+
+    switch (name) {
+      case "issue":
+        setIssueError("");
+        break;
+      case "ActualTime":
+        setActualTimeError("");
+        break;
+      default:
+        setEstimatedTimeError("");
+    }
+
     setIssues({
       ...Issues,
       [name]: value,
     });
   };
 
+  const validate = () => {
+    let isValid = true;
+
+    if (!Issues.issue || Issues.issue.trim().length === 0) {
+      setIssueError("Description is required");
+      isValid = false;
+    } else if (Issues.issue.length > 300) {
+      setIssueError("Description should be > 300  words");
+      isValid = false;
+    } else {
+      setIssueError("");
+    }
+
+    if (!Issues.ActualTime) {
+      setActualTimeError("required filed");
+      isValid = false;
+    } else {
+      setActualTimeError("");
+    }
+
+    if (!Issues.EstimatedTime) {
+      setEstimatedTimeError("required filed");
+      isValid = false;
+    } else {
+      setEstimatedTimeError("");
+    }
+
+    return isValid;
+  };
+
   const AddEmployeeissue = (e) => {
     e.preventDefault();
-    dispatch(setEmployeeIssues(Issues));
-    setDate();
+    const isValid = validate();
+    if (isValid) {
+      dispatch(setEmployeeIssues(Issues));
+      setDate();
+      dispatch(setopenFormstate(!showForm));
+      setIssues({
+        issue: "",
+        EstimatedTime: "",
+        ActualTime: "",
+        Date: "",
+        user: "",
+      });
+    }
   };
 
   const setDate = () => {
@@ -91,6 +143,8 @@ const AddIssueForm = () => {
                 maxRows={4}
                 name="issue"
                 onChange={handleChange}
+                error={!!issueError}
+                helperText={issueError}
               />
             </IssueText>
           </IssueDescription>
@@ -102,7 +156,14 @@ const AddIssueForm = () => {
                 variant="outlined"
                 name="ActualTime"
                 onChange={handleChange}
+                error={!!actualTimeError}
+                // helperText={actualTimeError}
               />
+              {actualTimeError && (
+                <Typography variant="caption" color="error">
+                  {actualTimeError}
+                </Typography>
+              )}
             </ActualTime>
             <EstimetedTime>
               <Timefield
@@ -111,7 +172,14 @@ const AddIssueForm = () => {
                 variant="outlined"
                 name="EstimatedTime"
                 onChange={handleChange}
+                error={!!estimatedTimeError}
+                // helperText={estimatedTimeError}
               />
+              {estimatedTimeError && (
+                <Typography variant="caption" color="error">
+                  {estimatedTimeError}
+                </Typography>
+              )}
             </EstimetedTime>
             <div>
               <Addbutton variant="contained" onClick={AddEmployeeissue}>
@@ -144,13 +212,24 @@ const IssueheaderText = styled.div`
   text-align: center;
 `;
 
-const MainListing = styled.div``;
+const MainListing = styled.div`
+  margin-top: 25px;
+  width: 100% !important;
+  padding: 25px;
+  display: flex;
+  gap: 100px !important;
+  border: 1px solid #eaecf0;
+  background-color: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 5px 28px #0000000f;
+  justify-content: center;
+`;
 
 const Listingdiv = styled.div`
   align-items: center;
   justify-content: center;
   display: flex;
-  padding-bottom: 10px;
+  /* padding-bottom: 10px; */
   gap: 50px !important;
 `;
 const IssueDescription = styled.div`
@@ -177,4 +256,17 @@ const Timeduration = styled.div`
 
 const Addbutton = styled(Button)`
   width: 100px !important;
+  border: 1px solid #f05537 !important;
+  background-color: #f05537 !important;
+  font-weight: 600 !important;
+  line-height: 1.25rem !important;
+  color: white !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  height: 2.5rem !important;
+  font-size: 1rem !important;
+  border-radius: 5px !important;
+  font-family: Poppins, sans-serif !important;
+  text-transform: capitalize !important;
 `;
