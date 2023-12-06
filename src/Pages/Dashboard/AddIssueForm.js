@@ -63,29 +63,34 @@ const AddIssueForm = () => {
       [name]: value,
     });
   };
-
+  const isValidNumber = (input) => /^\d{1,2}$/.test(input);
   const validate = () => {
     let isValid = true;
 
     if (!Issues.issue || Issues.issue.trim().length === 0) {
-      setIssueError("Description is required");
+      setIssueError("Description Is Required");
       isValid = false;
     } else if (Issues.issue.length > 300) {
-      setIssueError("Description should be > 300  words");
+      setIssueError("Description Should Be Less Then 300  Words");
       isValid = false;
     } else {
       setIssueError("");
     }
 
     if (!Issues.ActualTime) {
-      setActualTimeError("required filed");
+      setActualTimeError("Required Filed");
+      isValid = false;
+    } else if (!isValidNumber(Issues.ActualTime)) {
+      setActualTimeError("Invalid Time Hours");
       isValid = false;
     } else {
       setActualTimeError("");
     }
-
     if (!Issues.EstimatedTime) {
-      setEstimatedTimeError("required filed");
+      setEstimatedTimeError("Required Filed");
+      isValid = false;
+    } else if (!isValidNumber(Issues.EstimatedTime)) {
+      setEstimatedTimeError("Invalid Time Hours");
       isValid = false;
     } else {
       setEstimatedTimeError("");

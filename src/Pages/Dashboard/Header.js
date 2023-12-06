@@ -27,10 +27,11 @@ const style = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
   p: 4,
+  bgcolor: "#fff", // Set background color
+  border: "1px solid #eaecf0", // Set border properties
+  borderRadius: "0.75rem", // Set border radius
+  boxShadow: "0 5px 28px #0000000f",
 };
 
 const Header = () => {
@@ -38,6 +39,7 @@ const Header = () => {
   const [showButton, setShowButton] = useState(true);
   const [open, setOpen] = React.useState(false);
   const [employeeName, setEmployeeName] = React.useState("");
+  const [empnameError, setEmpnameError] = useState("");
 
   const abc = false;
 
@@ -94,9 +96,30 @@ const Header = () => {
     console.log("onFocus Called");
   };
 
+  const handleInputChange = (e) => {
+    setEmployeeName(e.target.value);
+    empnameError && setEmpnameError("");
+  };
+
+  const validate = () => {
+    let isValid = true;
+    const nameRegex = /^[a-zA-Z\s]*$/;
+    if (!employeeName || employeeName.trim().length === 0) {
+      setEmpnameError("EmployeeName is required");
+      isValid = false;
+    } else if (!nameRegex.test(employeeName)) {
+      setEmpnameError("Invalid EmployeeName");
+      isValid = false;
+    }
+    return isValid;
+  };
+
   const handleAddEmployee = () => {
-    dispatch(AddNewEmployee(employeeName));
-    setOpen(!open);
+    const isValid = validate();
+    if (isValid) {
+      dispatch(AddNewEmployee(employeeName));
+      setOpen(!open);
+    }
   };
 
   return (
@@ -170,13 +193,21 @@ const Header = () => {
               <Typography id="modal-modal-title" variant="h6" component="h2">
                 Add Employee
               </Typography>
-              <ModalTextfield
-                id="outlined-basic"
-                label="Add Employee Name"
-                variant="outlined"
-                sx={{ mt: 2, width: "100%" }}
-                onChange={(e) => setEmployeeName(e.target.value)}
-              />
+              <div>
+                <ModalTextfield
+                  id="outlined-basic"
+                  label="Add Employee Name"
+                  variant="outlined"
+                  sx={{ mt: 2, width: "100%" }}
+                  onChange={handleInputChange}
+                  error={!!empnameError}
+                />
+                {empnameError && (
+                  <Typography variant="caption" color="error">
+                    {empnameError}
+                  </Typography>
+                )}
+              </div>
               <StyledButton
                 variant="contained"
                 sx={{ mt: 2 }}

@@ -9,6 +9,7 @@ import { UpdateEmployee } from "../../Redux/reducers/employeeDataSlice";
 import { setListFilter } from "../../Redux/reducers/employeelistDataSlice";
 import { setFilter } from "../../Redux/reducers/employeeFiterSlice";
 import { RemoveEmployeeIssue } from "../../Redux/reducers/employeeDataSlice";
+import DeleteModal from "./DeleteModal";
 
 const ListingList = () => {
   const employeeData = useSelector(
@@ -28,6 +29,8 @@ const ListingList = () => {
   const [issueError, setIssueError] = useState("");
   const [actualTimeError, setActualTimeError] = useState("");
   const [estimatedTimeError, setEstimatedTimeError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDeleteIndex, setSelectedDeleteIndex] = useState(null);
 
   const handleEdit = (item_index) => {
     setEditableRow(item_index === editableRow ? null : item_index);
@@ -59,13 +62,10 @@ const ListingList = () => {
   };
 
   console.log("editedIssue", editedIssue);
-
+  const isValidNumber = (input) => /^\d{1,2}$/.test(input);
   const validate = () => {
     let isValid = true;
 
-    console.log("editedIssue.issue.length ", editedIssue.issue.length);
-
-    // Description validation
     if (!editedIssue.issue || editedIssue.issue.trim().length === 0) {
       setIssueError("Description is required");
       isValid = false;
@@ -76,17 +76,20 @@ const ListingList = () => {
       setIssueError("");
     }
 
-    // ActualTime validation
     if (!editedIssue.ActualTime) {
-      setActualTimeError("required filed");
+      setActualTimeError("Required Filed");
+      isValid = false;
+    } else if (!isValidNumber(editedIssue.ActualTime)) {
+      setActualTimeError("Invalid Time Hours");
       isValid = false;
     } else {
       setActualTimeError("");
     }
-
-    // EstimatedTime validation
     if (!editedIssue.EstimatedTime) {
-      setEstimatedTimeError("required filed");
+      setEstimatedTimeError("Required Filed");
+      isValid = false;
+    } else if (!isValidNumber(editedIssue.EstimatedTime)) {
+      setEstimatedTimeError("Invalid Time Hours");
       isValid = false;
     } else {
       setEstimatedTimeError("");
@@ -101,16 +104,6 @@ const ListingList = () => {
       setEditableRow(null);
       setUpdateData();
     }
-  };
-
-  const handleDelete = (item_index) => {
-    const delete_data = {
-      user: Employee_selected_data?.user,
-      id: item_index,
-      date: userSelected_date,
-    };
-    dispatch(RemoveEmployeeIssue(delete_data));
-    setUpdateData();
   };
 
   const setUpdateData = () => {
@@ -129,6 +122,30 @@ const ListingList = () => {
       Issues: filterdata[0]?.Issues.filter((issue) => issue.Date === date),
     };
     dispatch(setListFilter(Datewise_filter_issues));
+  };
+
+  const handleDelete = (item_index) => {
+    setSelectedDeleteIndex(item_index);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedDeleteIndex(null);
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedDeleteIndex !== null) {
+      const item_index = selectedDeleteIndex;
+      const delete_data = {
+        user: Employee_selected_data?.user,
+        id: item_index,
+        date: userSelected_date,
+      };
+      dispatch(RemoveEmployeeIssue(delete_data));
+      setUpdateData();
+      handleCloseModal(); // Close the modal after deleting
+    }
   };
 
   console.log("employeeData", employeeData);
@@ -203,8 +220,10 @@ const ListingList = () => {
                     </>
                   ) : (
                     <>
-                      <ActualTime>{list_data?.ActualTime}</ActualTime>
-                      <EstimetedTime>{list_data?.EstimatedTime}</EstimetedTime>
+                      <ActualTime>{list_data?.ActualTime} hours</ActualTime>
+                      <EstimetedTime>
+                        {list_data?.EstimatedTime} hours
+                      </EstimetedTime>
                     </>
                   )}
 
@@ -235,6 +254,14 @@ const ListingList = () => {
           </Spantext>
         ) : (
           ""
+        )}
+
+        {isModalOpen && (
+          <DeleteModal
+            open={isModalOpen}
+            onClose={handleCloseModal}
+            onConfirmDelete={handleConfirmDelete}
+          />
         )}
       </MainListing>
     </>
