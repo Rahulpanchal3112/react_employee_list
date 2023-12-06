@@ -10,6 +10,8 @@ import { setListFilter } from "../../Redux/reducers/employeelistDataSlice";
 import { setFilter } from "../../Redux/reducers/employeeFiterSlice";
 import { RemoveEmployeeIssue } from "../../Redux/reducers/employeeDataSlice";
 import DeleteModal from "./DeleteModal";
+import Pagination from "@mui/material/Pagination";
+import Stack from "@mui/material/Stack";
 
 const ListingList = () => {
   const employeeData = useSelector(
@@ -32,15 +34,26 @@ const ListingList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDeleteIndex, setSelectedDeleteIndex] = useState(null);
 
+  const [page, setPage] = useState(0);
+  const [rowsperpage, setRowsPerPage] = useState(5);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage - 1);
+  };
+
   const handleEdit = (item_index) => {
-    setEditableRow(item_index === editableRow ? null : item_index);
-    const singleEmployeeData = employeeData?.Issues[item_index];
+    const actualIndex = page * rowsperpage + item_index;
+    console.log("actualIndex", actualIndex);
+    setEditableRow(actualIndex === editableRow ? null : actualIndex);
+    const singleEmployeeData = employeeData?.Issues[actualIndex];
     setEditedIssue({
       ...singleEmployeeData,
       user: Employee_selected_data?.user,
-      id: item_index,
+      id: actualIndex,
     });
   };
+
+  console.log(editableRow, "editableRow");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -67,17 +80,17 @@ const ListingList = () => {
     let isValid = true;
 
     if (!editedIssue.issue || editedIssue.issue.trim().length === 0) {
-      setIssueError("Description is required");
+      setIssueError("Description is Required");
       isValid = false;
     } else if (editedIssue.issue.length > 300) {
-      setIssueError("Description should be > 300  words");
+      setIssueError("Description should be < 300  words");
       isValid = false;
     } else {
       setIssueError("");
     }
 
     if (!editedIssue.ActualTime) {
-      setActualTimeError("Required Filed");
+      setActualTimeError("Required Field");
       isValid = false;
     } else if (!isValidNumber(editedIssue.ActualTime)) {
       setActualTimeError("Invalid Time Hours");
@@ -86,7 +99,7 @@ const ListingList = () => {
       setActualTimeError("");
     }
     if (!editedIssue.EstimatedTime) {
-      setEstimatedTimeError("Required Filed");
+      setEstimatedTimeError("Required Field");
       isValid = false;
     } else if (!isValidNumber(editedIssue.EstimatedTime)) {
       setEstimatedTimeError("Invalid Time Hours");
@@ -104,6 +117,10 @@ const ListingList = () => {
       setEditableRow(null);
       setUpdateData();
     }
+  };
+
+  const handleclose = () => {
+    setEditableRow(null);
   };
 
   const setUpdateData = () => {
@@ -125,7 +142,8 @@ const ListingList = () => {
   };
 
   const handleDelete = (item_index) => {
-    setSelectedDeleteIndex(item_index);
+    const actualIndex = page * rowsperpage + item_index;
+    setSelectedDeleteIndex(actualIndex);
     setIsModalOpen(true);
   };
 
@@ -168,8 +186,12 @@ const ListingList = () => {
           </MainHeader>
         )}
 
-        {employeeData?.Issues?.map((list_data, index) => {
-          const isEditable = editableRow === index;
+        {employeeData?.Issues?.slice(
+          page * rowsperpage,
+          page * rowsperpage + rowsperpage
+        ).map((list_data, index) => {
+          const actualIndex = page * rowsperpage + index;
+          const isEditable = editableRow === actualIndex;
 
           return (
             <React.Fragment key={index}>
@@ -229,13 +251,20 @@ const ListingList = () => {
 
                   <Actions>
                     {isEditable ? (
-                      <EditSavebtn variant="contained" onClick={handleSave}>
-                        Save
-                      </EditSavebtn>
+                      <EditButtons>
+                        <EditSavebtn variant="contained" onClick={handleSave}>
+                          Save
+                        </EditSavebtn>
+                        <EditSavebtn variant="contained" onClick={handleclose}>
+                          X
+                        </EditSavebtn>
+                      </EditButtons>
                     ) : (
-                      <IconButton onClick={() => handleEdit(index)}>
-                        <EditIcon />
-                      </IconButton>
+                      <>
+                        <IconButton onClick={() => handleEdit(index)}>
+                          <EditIcon />
+                        </IconButton>
+                      </>
                     )}
 
                     <IconButton onClick={() => handleDelete(index)}>
@@ -255,7 +284,31 @@ const ListingList = () => {
         ) : (
           ""
         )}
-
+        {employeeData?.Issues?.length > 0 && (
+          <PaginationDiv>
+            <Stack spacing={2}>
+              <StyledPagination
+                variant="outlined"
+                shape="rounded"
+                count={Math.ceil(employeeData?.Issues?.length / rowsperpage)}
+                component="div"
+                rowsperpage={5}
+                page={page + 1}
+                onChange={handleChangePage}
+              />
+            </Stack>
+          </PaginationDiv>
+        )}
+        {/* 
+        {employeeData?.Issues?.length > 0 ? (
+          <PaginationDiv>
+            <Stack spacing={2}>
+              <Pagination count={10} color="primary" shape="rounded" />
+            </Stack>
+          </PaginationDiv>
+        ) : (
+          ""
+        )} */}
         {isModalOpen && (
           <DeleteModal
             open={isModalOpen}
@@ -269,6 +322,31 @@ const ListingList = () => {
 };
 
 export default ListingList;
+
+const PaginationDiv = styled.div`
+  display: flex;
+  justify-content: center;
+  position: relative !important;
+  top: 15px !important;
+`;
+
+const StyledPagination = styled(Pagination)`
+  .Mui-selected {
+    background-color: #f05537 !important;
+    color: white !important;
+    font-weight: 600 !important;
+  }
+  .MuiPaginationItem-previousNext {
+    background-color: #fff !important;
+    color: #f05537 !important;
+    font-weight: 600 !important;
+  }
+`;
+
+const EditButtons = styled.div`
+  display: flex;
+  gap: 10px;
+`;
 
 const Spantext = styled.div`
   display: flex;

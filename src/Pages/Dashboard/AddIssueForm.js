@@ -78,7 +78,7 @@ const AddIssueForm = () => {
     }
 
     if (!Issues.ActualTime) {
-      setActualTimeError("Required Filed");
+      setActualTimeError("Required Field");
       isValid = false;
     } else if (!isValidNumber(Issues.ActualTime)) {
       setActualTimeError("Invalid Time Hours");
@@ -87,7 +87,7 @@ const AddIssueForm = () => {
       setActualTimeError("");
     }
     if (!Issues.EstimatedTime) {
-      setEstimatedTimeError("Required Filed");
+      setEstimatedTimeError("Required Field");
       isValid = false;
     } else if (!isValidNumber(Issues.EstimatedTime)) {
       setEstimatedTimeError("Invalid Time Hours");
