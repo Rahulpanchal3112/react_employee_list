@@ -357,7 +357,7 @@ const Spantext = styled.div`
   background-color: #fff;
   border-bottom: 1px solid #eaecf0 !important;
   gap: 15px;
-  align-items: center;
+  align-items: center !important;
   text-align: center;
 `;
 
@@ -421,6 +421,7 @@ const Listingdiv = styled.div`
   background-color: #fff;
   border-bottom: 1px solid #eaecf0 !important;
   gap: 15px;
+  align-items: center;
 `;
 
 const IssueDescription = styled.div`

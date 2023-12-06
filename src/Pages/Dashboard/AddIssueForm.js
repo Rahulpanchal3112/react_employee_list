@@ -157,7 +157,7 @@ const AddIssueForm = () => {
             <ActualTime>
               <Timefield
                 id="outlined-basic"
-                label="Actual Time"
+                placeholder="Actual Time"
                 variant="outlined"
                 name="ActualTime"
                 onChange={handleChange}
@@ -173,7 +173,7 @@ const AddIssueForm = () => {
             <EstimetedTime>
               <Timefield
                 id="outlined-basic"
-                label="Estimated Time"
+                placeholder="Estimated Time"
                 variant="outlined"
                 name="EstimatedTime"
                 onChange={handleChange}
@@ -204,12 +204,47 @@ const MainHeader = styled.div``;
 
 const Descriptionfield = styled(TextField)`
   width: 100% !important;
+  .MuiOutlinedInput-root {
+    fieldset {
+      border-color: #eaecf0;
+    }
+    &:hover fieldset {
+      border-color: #eaecf0;
+    }
+    &.Mui-focused fieldset {
+      border-color: #ffad95;
+      color: #101828;
+      /* box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05), 0 0 0 4px #d1e0ff; */
+      /* Updated box-shadow with the color #ff8a6b */
+      /* box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05), 0 0 0 4px #ffe7e0 !important; */
+
+      box-shadow: 5px 5px 10px #ffe7e0;
+    }
+  }
 `;
 
 const Timefield = styled(TextField)`
   height: 50px !important;
   .css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root {
     height: 50px !important;
+  }
+
+  .MuiOutlinedInput-root {
+    fieldset {
+      border-color: #eaecf0;
+    }
+    &:hover fieldset {
+      border-color: #eaecf0;
+    }
+    &.Mui-focused fieldset {
+      border-color: #ffad95;
+      color: #101828;
+      /* box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05), 0 0 0 4px #d1e0ff; */
+      /* Updated box-shadow with the color #ff8a6b */
+      /* box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05), 0 0 0 4px #ffe7e0 !important; */
+
+      box-shadow: 5px 5px 10px #ffe7e0;
+    }
   }
 `;
 
