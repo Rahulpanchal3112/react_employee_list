@@ -1,5 +1,5 @@
-import { setFilter } from "../../Redux/reducers/employeeFiterSlice";
-import { setListFilter } from "../../Redux/reducers/employeelistDataSlice";
+import { setFilter } from "../Redux/reducers/employeeFiterSlice";
+import { setListFilter } from "../Redux/reducers/employeelistDataSlice";
 
 export const setglobalState = (
   userSelected_date,

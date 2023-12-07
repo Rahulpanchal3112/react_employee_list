@@ -12,8 +12,8 @@ import { setEmployeeIssues } from "../../Redux/reducers/employeeDataSlice";
 import { setListFilter } from "../../Redux/reducers/employeelistDataSlice";
 import { setFilter } from "../../Redux/reducers/employeeFiterSlice";
 import { setopenFormstate } from "../../Redux/reducers/openformSlice";
-import { validateIssues } from "./validationUtils";
-import { setglobalState } from "./dateUtils";
+import { setglobalState } from "../../common/dateUtils";
+import { validateIssues } from "../../common/validationUtils";
 
 const AddIssueForm = () => {
   const dispatch = useDispatch();

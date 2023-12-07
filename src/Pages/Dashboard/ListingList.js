@@ -12,8 +12,8 @@ import { RemoveEmployeeIssue } from "../../Redux/reducers/employeeDataSlice";
 import DeleteModal from "./DeleteModal";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
-import { validateIssues } from "./validationUtils";
-import { setglobalState } from "./dateUtils";
+import { setglobalState } from "../../common/dateUtils";
+import { validateIssues } from "../../common/validationUtils";
 
 const ListingList = () => {
   const employeeData = useSelector(
