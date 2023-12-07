@@ -28,9 +28,9 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: 400,
   p: 4,
-  bgcolor: "#fff", // Set background color
-  border: "1px solid #eaecf0", // Set border properties
-  borderRadius: "0.75rem", // Set border radius
+  bgcolor: "#fff",
+  border: "1px solid #eaecf0",
+  borderRadius: "0.75rem",
   boxShadow: "0 5px 28px #0000000f",
 };
 
@@ -49,6 +49,10 @@ const Header = () => {
   const data = useSelector((state) => state?.employeeData?.users);
   const Employee_selected_data = useSelector(
     (state) => state?.employeefilterData?.employeeFilter
+  );
+
+  const employeeFilterlistData = useSelector(
+    (state) => state?.employeelistfilterData?.employeeListFilter
   );
   const userSelected_date = useSelector(
     (state) => state?.selectedDate?.userSelectDate
@@ -122,6 +126,18 @@ const Header = () => {
     }
   };
 
+  const copyArrayToClipboard = () => {
+    const arrayString = JSON.stringify(employeeFilterlistData);
+    navigator.clipboard
+      .writeText(arrayString)
+      .then(() => {
+        console.log("Array data copied to clipboard:", arrayString);
+      })
+      .catch((err) => {
+        console.error("Failed to copy array data:", err);
+      });
+  };
+
   return (
     <>
       <Headerdiv>
@@ -182,6 +198,17 @@ const Header = () => {
               </StyledButton>
             </div>
           )}
+
+          <div>
+            <StyledButton
+              variant="contained"
+              onClick={copyArrayToClipboard}
+              // disabled={showButton}
+              sx={{ textTransform: "capitalize" }}
+            >
+              Copy To
+            </StyledButton>
+          </div>
         </Datelist>
         <div>
           <Modal

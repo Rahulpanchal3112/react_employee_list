@@ -13,10 +13,10 @@ const style = {
   width: 400,
   boxShadow: 24,
   p: 4,
-  bgcolor: "#fff", // Set background color
-  border: "1px solid #eaecf0", // Set border properties
-  borderRadius: "0.75rem", // Set border radius
-  boxShadow: "0 5px 28px #0000000f", // Set box-shadow
+  bgcolor: "#fff",
+  border: "1px solid #eaecf0",
+  borderRadius: "0.75rem",
+  boxShadow: "0 5px 28px #0000000f",
 };
 
 const DeleteModal = ({ open, onClose, onConfirmDelete }) => {

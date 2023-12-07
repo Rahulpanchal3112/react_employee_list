@@ -13,13 +13,15 @@ const employeeDataSlice = createSlice({
     },
 
     setEmployeeIssues: (state, action) => {
-      const { issue, EstimatedTime, ActualTime, Date, user } = action.payload;
+      const { issue, ProjectName, EstimatedTime, ActualTime, Date, user } =
+        action.payload;
       const foundUserIndex = state.users.findIndex(
         (userData) => userData.user === user
       );
       if (foundUserIndex !== -1) {
         const newIssue = {
           issue,
+          ProjectName,
           EstimatedTime,
           ActualTime,
           Date,
@@ -38,7 +40,7 @@ const employeeDataSlice = createSlice({
     },
 
     UpdateEmployee: (state, action) => {
-      const { issue, EstimatedTime, ActualTime, Date, user, id } =
+      const { issue, ProjectName, EstimatedTime, ActualTime, Date, user, id } =
         action.payload;
       const foundUser = state.users.find((userData) => userData.user === user);
 
@@ -55,6 +57,7 @@ const employeeDataSlice = createSlice({
           if (indexToUpdate !== -1) {
             foundUser.Issues[indexToUpdate] = {
               issue,
+              ProjectName,
               EstimatedTime,
               ActualTime,
               Date,

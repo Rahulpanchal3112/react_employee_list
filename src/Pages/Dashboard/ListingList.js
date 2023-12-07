@@ -12,6 +12,8 @@ import { RemoveEmployeeIssue } from "../../Redux/reducers/employeeDataSlice";
 import DeleteModal from "./DeleteModal";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
+import { validateIssues } from "./validationUtils";
+import { setglobalState } from "./dateUtils";
 
 const ListingList = () => {
   const employeeData = useSelector(
@@ -31,6 +33,8 @@ const ListingList = () => {
   const [issueError, setIssueError] = useState("");
   const [actualTimeError, setActualTimeError] = useState("");
   const [estimatedTimeError, setEstimatedTimeError] = useState("");
+  const [projectnameError, setProjectnameError] = useState("");
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDeleteIndex, setSelectedDeleteIndex] = useState(null);
 
@@ -58,6 +62,11 @@ const ListingList = () => {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
+    setEditedIssue({
+      ...editedIssue,
+      [name]: value,
+    });
+
     switch (name) {
       case "issue":
         setIssueError("");
@@ -65,80 +74,32 @@ const ListingList = () => {
       case "ActualTime":
         setActualTimeError("");
         break;
+      case "ProjectName":
+        setProjectnameError("");
+        break;
       default:
         setEstimatedTimeError("");
     }
-    setEditedIssue({
-      ...editedIssue,
-      [name]: value,
-    });
   };
 
-  console.log("editedIssue", editedIssue);
-  const isValidNumber = (input) => /^\d{1,2}$/.test(input);
-  const validate = () => {
-    let isValid = true;
+  const handleSave = (e) => {
+    e.preventDefault();
+    const { isValid, errors } = validateIssues(editedIssue);
 
-    if (!editedIssue.issue || editedIssue.issue.trim().length === 0) {
-      setIssueError("Description is Required");
-      isValid = false;
-    } else if (editedIssue.issue.length > 300) {
-      setIssueError("Description should be < 300  words");
-      isValid = false;
-    } else {
-      setIssueError("");
-    }
-
-    if (!editedIssue.ActualTime) {
-      setActualTimeError("Required Field");
-      isValid = false;
-    } else if (!isValidNumber(editedIssue.ActualTime)) {
-      setActualTimeError("Invalid Time Hours");
-      isValid = false;
-    } else {
-      setActualTimeError("");
-    }
-    if (!editedIssue.EstimatedTime) {
-      setEstimatedTimeError("Required Field");
-      isValid = false;
-    } else if (!isValidNumber(editedIssue.EstimatedTime)) {
-      setEstimatedTimeError("Invalid Time Hours");
-      isValid = false;
-    } else {
-      setEstimatedTimeError("");
-    }
-
-    return isValid;
-  };
-  const handleSave = () => {
-    const isValid = validate();
     if (isValid) {
       dispatch(UpdateEmployee(editedIssue));
       setEditableRow(null);
-      setUpdateData();
+      setglobalState(userSelected_date, Employee_selected_data, dispatch);
+    } else {
+      setIssueError(errors.issue);
+      setProjectnameError(errors.projectName);
+      setActualTimeError(errors.actualTime);
+      setEstimatedTimeError(errors.estimatedTime);
     }
   };
 
   const handleclose = () => {
     setEditableRow(null);
-  };
-
-  const setUpdateData = () => {
-    const Getdata = localStorage.getItem("employeeDataState");
-    let data = JSON.parse(Getdata);
-    const date = userSelected_date;
-    const user = Employee_selected_data?.user;
-    const filterdata = data?.filter((item) => {
-      return user === item?.user;
-    });
-    if (filterdata.length > 0) {
-      dispatch(setFilter(filterdata[0]));
-    }
-    const Datewise_filter_issues = {
-      ...filterdata[0],
-      Issues: filterdata[0]?.Issues.filter((issue) => issue.Date === date),
-    };
-    dispatch(setListFilter(Datewise_filter_issues));
   };
 
   const handleDelete = (item_index) => {
@@ -161,12 +122,10 @@ const ListingList = () => {
         date: userSelected_date,
       };
       dispatch(RemoveEmployeeIssue(delete_data));
-      setUpdateData();
-      handleCloseModal(); // Close the modal after deleting
+      setglobalState(userSelected_date, Employee_selected_data, dispatch);
+      handleCloseModal();
     }
   };
-
-  console.log("employeeData", employeeData);
 
   return (
     <>
@@ -178,10 +137,11 @@ const ListingList = () => {
                 <IssueheaderText>Issue Details</IssueheaderText>
               </IssueDescription>
               <Timeduration>
+                <ProjectList>Project Name</ProjectList>
                 <ActualTime>Actual Hours</ActualTime>
                 <EstimetedTime>Estimated Hours</EstimetedTime>
+                <Actions>Action</Actions>
               </Timeduration>
-              <Actions>Action</Actions>
             </ListingHeaderdiv>
           </MainHeader>
         )}
@@ -220,6 +180,16 @@ const ListingList = () => {
                     <>
                       <TimeText
                         id="standard-basic"
+                        label="Project Name"
+                        variant="standard"
+                        value={editedIssue.ProjectName || ""}
+                        onChange={handleChange}
+                        name="ProjectName"
+                        error={!!projectnameError}
+                        helperText={projectnameError}
+                      />
+                      <TimeText
+                        id="standard-basic"
                         label="ActualTime"
                         variant="standard"
                         value={editedIssue.ActualTime || ""}
@@ -242,6 +212,7 @@ const ListingList = () => {
                     </>
                   ) : (
                     <>
+                      <ProjectList>{list_data?.ProjectName}</ProjectList>
                       <ActualTime>{list_data?.ActualTime} hours</ActualTime>
                       <EstimetedTime>
                         {list_data?.EstimatedTime} hours
@@ -299,16 +270,7 @@ const ListingList = () => {
             </Stack>
           </PaginationDiv>
         )}
-        {/* 
-        {employeeData?.Issues?.length > 0 ? (
-          <PaginationDiv>
-            <Stack spacing={2}>
-              <Pagination count={10} color="primary" shape="rounded" />
-            </Stack>
-          </PaginationDiv>
-        ) : (
-          ""
-        )} */}
+
         {isModalOpen && (
           <DeleteModal
             open={isModalOpen}
@@ -396,14 +358,12 @@ const IssueheaderText = styled.div`
 
 const MainListing = styled.div`
   margin-top: 25px;
-  /* border: 1px solid #eaecf0; */
 `;
 
 const ListingHeaderdiv = styled.div`
   color: white !important;
   align-items: center;
   display: flex;
-  /* padding-bottom: 10px; */
   justify-content: center;
   height: 40px;
   font-weight: 600;
@@ -411,8 +371,6 @@ const ListingHeaderdiv = styled.div`
 `;
 
 const Listingdiv = styled.div`
-  /* color: #101828 !important; */
-
   display: flex;
   justify-content: center;
   height: 138px;
@@ -425,13 +383,18 @@ const Listingdiv = styled.div`
 `;
 
 const IssueDescription = styled.div`
-  width: 800px;
+  width: 650px;
   word-wrap: break-word !important;
   padding-top: 10px;
   padding-bottom: 10px;
 `;
 
 const ActualTime = styled.div`
+  width: 150px;
+  text-align: center;
+`;
+
+const ProjectList = styled.div`
   width: 150px;
   text-align: center;
 `;

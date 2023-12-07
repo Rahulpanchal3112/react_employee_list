@@ -12,7 +12,8 @@ import { setEmployeeIssues } from "../../Redux/reducers/employeeDataSlice";
 import { setListFilter } from "../../Redux/reducers/employeelistDataSlice";
 import { setFilter } from "../../Redux/reducers/employeeFiterSlice";
 import { setopenFormstate } from "../../Redux/reducers/openformSlice";
-// import { setEmployeeIssues } from "../../Redux/reducers/employeeDataSlice";
+import { validateIssues } from "./validationUtils";
+import { setglobalState } from "./dateUtils";
 
 const AddIssueForm = () => {
   const dispatch = useDispatch();
@@ -26,6 +27,7 @@ const AddIssueForm = () => {
   const [age, setAge] = React.useState("");
   const [Issues, setIssues] = useState({
     issue: "",
+    ProjectName: "",
     EstimatedTime: "",
     ActualTime: "",
     Date: "",
@@ -33,6 +35,7 @@ const AddIssueForm = () => {
   });
 
   const [issueError, setIssueError] = useState("");
+  const [projectnameError, setProjectnameError] = useState("");
   const [actualTimeError, setActualTimeError] = useState("");
   const [estimatedTimeError, setEstimatedTimeError] = useState("");
 
@@ -46,7 +49,10 @@ const AddIssueForm = () => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-
+    setIssues({
+      ...Issues,
+      [name]: value,
+    });
     switch (name) {
       case "issue":
         setIssueError("");
@@ -54,57 +60,20 @@ const AddIssueForm = () => {
       case "ActualTime":
         setActualTimeError("");
         break;
+      case "ProjectName":
+        setProjectnameError("");
+        break;
       default:
         setEstimatedTimeError("");
     }
-
-    setIssues({
-      ...Issues,
-      [name]: value,
-    });
-  };
-  const isValidNumber = (input) => /^\d{1,2}$/.test(input);
-  const validate = () => {
-    let isValid = true;
-
-    if (!Issues.issue || Issues.issue.trim().length === 0) {
-      setIssueError("Description Is Required");
-      isValid = false;
-    } else if (Issues.issue.length > 300) {
-      setIssueError("Description Should Be Less Then 300  Words");
-      isValid = false;
-    } else {
-      setIssueError("");
-    }
-
-    if (!Issues.ActualTime) {
-      setActualTimeError("Required Field");
-      isValid = false;
-    } else if (!isValidNumber(Issues.ActualTime)) {
-      setActualTimeError("Invalid Time Hours");
-      isValid = false;
-    } else {
-      setActualTimeError("");
-    }
-    if (!Issues.EstimatedTime) {
-      setEstimatedTimeError("Required Field");
-      isValid = false;
-    } else if (!isValidNumber(Issues.EstimatedTime)) {
-      setEstimatedTimeError("Invalid Time Hours");
-      isValid = false;
-    } else {
-      setEstimatedTimeError("");
-    }
-
-    return isValid;
   };
 
   const AddEmployeeissue = (e) => {
     e.preventDefault();
-    const isValid = validate();
+    const { isValid, errors } = validateIssues(Issues);
     if (isValid) {
       dispatch(setEmployeeIssues(Issues));
-      setDate();
+      setglobalState(userSelected_date, Employee_selected_data, dispatch);
       dispatch(setopenFormstate(!showForm));
       setIssues({
         issue: "",
@@ -113,26 +82,12 @@ const AddIssueForm = () => {
         Date: "",
         user: "",
       });
+    } else {
+      setIssueError(errors.issue);
+      setProjectnameError(errors.projectName);
+      setActualTimeError(errors.actualTime);
+      setEstimatedTimeError(errors.estimatedTime);
     }
-  };
-
-  const setDate = () => {
-    const Getdata = localStorage.getItem("employeeDataState");
-    let data = JSON.parse(Getdata);
-    const date = userSelected_date;
-    const user = Employee_selected_data?.user;
-    const filterdata = data?.filter((item) => {
-      return user === item?.user;
-    });
-    if (filterdata.length > 0) {
-      dispatch(setFilter(filterdata[0]));
-    }
-    const Datewise_filter_issues = {
-      ...filterdata[0],
-      Issues: filterdata[0]?.Issues.filter((issue) => issue.Date === date),
-    };
-
-    dispatch(setListFilter(Datewise_filter_issues));
   };
 
   return (
@@ -154,6 +109,22 @@ const AddIssueForm = () => {
             </IssueText>
           </IssueDescription>
           <Timeduration>
+            <ProjectName>
+              <Timefield
+                id="outlined-basic"
+                placeholder="Project Name"
+                variant="outlined"
+                name="ProjectName"
+                onChange={handleChange}
+                error={!!projectnameError}
+              />
+              {projectnameError && (
+                <Typography variant="caption" color="error">
+                  {projectnameError}
+                </Typography>
+              )}
+            </ProjectName>
+
             <ActualTime>
               <Timefield
                 id="outlined-basic"
@@ -162,7 +133,6 @@ const AddIssueForm = () => {
                 name="ActualTime"
                 onChange={handleChange}
                 error={!!actualTimeError}
-                // helperText={actualTimeError}
               />
               {actualTimeError && (
                 <Typography variant="caption" color="error">
@@ -178,7 +148,6 @@ const AddIssueForm = () => {
                 name="EstimatedTime"
                 onChange={handleChange}
                 error={!!estimatedTimeError}
-                // helperText={estimatedTimeError}
               />
               {estimatedTimeError && (
                 <Typography variant="caption" color="error">
@@ -214,10 +183,6 @@ const Descriptionfield = styled(TextField)`
     &.Mui-focused fieldset {
       border-color: #ffad95;
       color: #101828;
-      /* box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05), 0 0 0 4px #d1e0ff; */
-      /* Updated box-shadow with the color #ff8a6b */
-      /* box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05), 0 0 0 4px #ffe7e0 !important; */
-
       box-shadow: 5px 5px 10px #ffe7e0;
     }
   }
@@ -239,10 +204,6 @@ const Timefield = styled(TextField)`
     &.Mui-focused fieldset {
       border-color: #ffad95;
       color: #101828;
-      /* box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05), 0 0 0 4px #d1e0ff; */
-      /* Updated box-shadow with the color #ff8a6b */
-      /* box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05), 0 0 0 4px #ffe7e0 !important; */
-
       box-shadow: 5px 5px 10px #ffe7e0;
     }
   }
@@ -273,9 +234,14 @@ const Listingdiv = styled.div`
   gap: 50px !important;
 `;
 const IssueDescription = styled.div`
-  width: 800px;
+  width: 650px !important;
 `;
 const ActualTime = styled.div`
+  width: 180px;
+  text-align: center;
+`;
+
+const ProjectName = styled.div`
   width: 180px;
   text-align: center;
 `;
@@ -289,10 +255,6 @@ const Timeduration = styled.div`
   gap: 25px !important;
   align-items: center;
 `;
-
-// const Form = styled(FormControl)`
-//   width: 100% !important;
-// `;
 
 const Addbutton = styled(Button)`
   width: 100px !important;
