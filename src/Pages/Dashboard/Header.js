@@ -124,7 +124,7 @@ const Header = () => {
   };
 
   const copyArrayToClipboard = () => {
-    setOpenDatepicker(true);
+    setOpenDatepicker(!openDatepicker);
   };
 
   const handleCopyData = (selectedDate) => {
@@ -143,12 +143,12 @@ const Header = () => {
     dispatch(setCopyOfEmployeeData(updatedUserData));
     setglobalState(selectedDatecopy, updatedUserData, dispatch);
     dispatch(setSelectedDate(selectedDatecopy));
-    setOpenDatepicker(false);
+    setCopydate("");
+    setOpenDatepicker(!openDatepicker);
   };
 
   console.log("employeeFilterlistData", employeeFilterlistData);
 
-  // employeeFilterlistData?.Issues?.length === 0
   return (
     <>
       <Headerdiv>

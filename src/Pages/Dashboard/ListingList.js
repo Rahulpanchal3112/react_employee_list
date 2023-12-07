@@ -1,5 +1,5 @@
 import { Typography, IconButton, Button } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import EditIcon from "@mui/icons-material/Edit";
@@ -12,6 +12,11 @@ import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import { setglobalState } from "../../common/dateUtils";
 import { validateIssues } from "../../common/validationUtils";
+import Badge from "@mui/material/Badge";
+import Box from "@mui/material/Box";
+
+const shapeCircleStyles = { borderRadius: "50%" };
+const circle = <Box component="span" sx={{ ...shapeCircleStyles }} />;
 
 const ListingList = () => {
   const employeeData = useSelector(
@@ -122,6 +127,22 @@ const ListingList = () => {
     }
   };
 
+  const [currentTime] = useState(new Date());
+  const startTime = new Date();
+  console.log("startTime", startTime);
+  startTime.setHours(11, 0, 0); // Set the start time to 04:00 PM (16:00 in 24-hour format)
+  console.log("startTime.getTime()", startTime.getTime());
+  const calculateTimeDifference = () => {
+    const differenceInMillis = currentTime.getTime() - startTime.getTime();
+    const diffInHours = Math.floor(differenceInMillis / (1000 * 60 * 60)); // Convert milliseconds to whole hours
+
+    return diffInHours;
+  };
+
+  const difference = calculateTimeDifference();
+
+  console.log("difference", difference);
+
   return (
     <>
       <MainListing>
@@ -135,6 +156,7 @@ const ListingList = () => {
                 <ProjectList>Project Name</ProjectList>
                 <ActualTime>Actual Hours</ActualTime>
                 <EstimetedTime>Estimated Hours</EstimetedTime>
+                <EstimetedTime>Status</EstimetedTime>
                 <Actions>Action</Actions>
               </Timeduration>
             </ListingHeaderdiv>
@@ -212,6 +234,25 @@ const ListingList = () => {
                       <EstimetedTime>
                         {list_data?.EstimatedTime} hours
                       </EstimetedTime>
+                      <StatusIcon>
+                        <Stack spacing={3} direction="row">
+                          {difference >= list_data?.EstimatedTime ? (
+                            <SuccessBadgeIcon
+                              color="secondary"
+                              badgeContent=" "
+                            >
+                              {circle}
+                            </SuccessBadgeIcon>
+                          ) : (
+                            <FailureBadgeIcon
+                              color="secondary"
+                              badgeContent=" "
+                            >
+                              {circle}
+                            </FailureBadgeIcon>
+                          )}
+                        </Stack>
+                      </StatusIcon>
                     </>
                   )}
 
@@ -279,6 +320,20 @@ const ListingList = () => {
 };
 
 export default ListingList;
+
+const SuccessBadgeIcon = styled(Badge)`
+  .css-jcn4dz-MuiBadge-badge {
+    background-color: green !important;
+    z-index: 0 !important;
+  }
+`;
+
+const FailureBadgeIcon = styled(Badge)`
+  .css-jcn4dz-MuiBadge-badge {
+    background-color: red !important;
+    z-index: 0 !important;
+  }
+`;
 
 const PaginationDiv = styled.div`
   display: flex;
@@ -393,6 +448,13 @@ const ProjectList = styled.div`
 const EstimetedTime = styled.div`
   width: 150px;
   text-align: center;
+`;
+
+const StatusIcon = styled.div`
+  width: 150px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
 `;
 
 const IssueText = styled.div`
