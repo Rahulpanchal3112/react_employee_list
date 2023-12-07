@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
+import Select from "@mui/material/Select";
 import styled from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Button } from "@mui/material";
-import ListingList from "./ListingList";
 import moment from "moment/moment";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
@@ -20,6 +19,8 @@ import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import { AddNewEmployee } from "../../Redux/reducers/employeeDataSlice";
+import { setCopyOfEmployeeData } from "../../Redux/reducers/employeeDataSlice";
+import { setglobalState } from "../../common/dateUtils";
 
 const style = {
   position: "absolute",
@@ -40,8 +41,9 @@ const Header = () => {
   const [open, setOpen] = React.useState(false);
   const [employeeName, setEmployeeName] = React.useState("");
   const [empnameError, setEmpnameError] = useState("");
-
-  const abc = false;
+  const [copyEmployeedata, setCopyEmployeedata] = useState("");
+  const [openDatepicker, setOpenDatepicker] = useState(false);
+  const [copyDate, setCopydate] = useState("");
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -61,7 +63,6 @@ const Header = () => {
 
   const [age, setAge] = React.useState("");
   const [employeeData, setEmployeeData] = useState();
-  const [test, setTest] = useState();
 
   const handleChange = (event) => {
     let user = event?.target?.value;
@@ -96,10 +97,6 @@ const Header = () => {
     dispatch(setopenFormstate(!showForm));
   };
 
-  const handleValidation = () => {
-    console.log("onFocus Called");
-  };
-
   const handleInputChange = (e) => {
     setEmployeeName(e.target.value);
     empnameError && setEmpnameError("");
@@ -127,17 +124,31 @@ const Header = () => {
   };
 
   const copyArrayToClipboard = () => {
-    const arrayString = JSON.stringify(employeeFilterlistData);
-    navigator.clipboard
-      .writeText(arrayString)
-      .then(() => {
-        console.log("Array data copied to clipboard:", arrayString);
-      })
-      .catch((err) => {
-        console.error("Failed to copy array data:", err);
-      });
+    setOpenDatepicker(true);
   };
 
+  const handleCopyData = (selectedDate) => {
+    let selectedDatecopy = moment(selectedDate).format("DD-MM-YYYY");
+    setCopydate(selectedDatecopy);
+    const updatedArray = employeeFilterlistData.Issues.map((item) => {
+      return {
+        ...item,
+        Date: selectedDatecopy,
+      };
+    });
+    const updatedUserData = {
+      ...employeeFilterlistData,
+      Issues: updatedArray,
+    };
+    dispatch(setCopyOfEmployeeData(updatedUserData));
+    setglobalState(selectedDatecopy, updatedUserData, dispatch);
+    dispatch(setSelectedDate(selectedDatecopy));
+    setOpenDatepicker(false);
+  };
+
+  console.log("employeeFilterlistData", employeeFilterlistData);
+
+  // employeeFilterlistData?.Issues?.length === 0
   return (
     <>
       <Headerdiv>
@@ -177,15 +188,19 @@ const Header = () => {
               disabled={dateError}
             />
           </div>
-          <div>
-            <StyledButton
-              variant="contained"
-              onClick={handleOpen}
-              sx={{ textTransform: "capitalize" }}
-            >
-              Add Employee
-            </StyledButton>
-          </div>
+
+          {!openDatepicker && (
+            <div>
+              <StyledButton
+                variant="contained"
+                onClick={handleOpen}
+                sx={{ textTransform: "capitalize" }}
+              >
+                Add Employee
+              </StyledButton>
+            </div>
+          )}
+
           {!showButton && (
             <div>
               <StyledButton
@@ -199,16 +214,31 @@ const Header = () => {
             </div>
           )}
 
-          <div>
-            <StyledButton
-              variant="contained"
-              onClick={copyArrayToClipboard}
-              // disabled={showButton}
-              sx={{ textTransform: "capitalize" }}
-            >
-              Copy To
-            </StyledButton>
-          </div>
+          {Object.keys(employeeFilterlistData).length !== 0 &&
+            Array.isArray(employeeFilterlistData?.Issues) &&
+            employeeFilterlistData.Issues.length !== 0 && (
+              <div>
+                <StyledButton
+                  variant="contained"
+                  onClick={copyArrayToClipboard}
+                  // disabled={showButton}
+                  sx={{ textTransform: "capitalize" }}
+                >
+                  Copy To
+                </StyledButton>
+              </div>
+            )}
+
+          {openDatepicker && (
+            <div>
+              <DatePicker
+                value={copyDate}
+                onChange={(date) => handleCopyData(date)}
+                placeholderText="Select Date To Copy"
+                disabled={dateError}
+              />
+            </div>
+          )}
         </Datelist>
         <div>
           <Modal
@@ -261,16 +291,6 @@ const SelectDropdown = styled(Select)`
   }
 `;
 
-// const Testdiv = styled.div`
-//   color: red;
-//   .MuiInputBase-root {
-//     .css-1yk1gt9-MuiInputBase-root-MuiOutlinedInput-root-MuiSelect-root.Mui-focused
-//       .MuiOutlinedInput-notchedOutline {
-//       color: #000;
-//     }
-//   }
-// `;
-
 const StyledButton = styled(Button)`
   border: 1px solid #f05537 !important;
   background-color: #f05537 !important;
@@ -312,10 +332,6 @@ const ModalTextfield = styled(TextField)`
     &.Mui-focused fieldset {
       border-color: #ffad95;
       color: #101828;
-      /* box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05), 0 0 0 4px #d1e0ff; */
-      /* Updated box-shadow with the color #ff8a6b */
-      /* box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05), 0 0 0 4px #ffe7e0 !important; */
-
       box-shadow: 5px 5px 10px #ffe7e0;
     }
   }

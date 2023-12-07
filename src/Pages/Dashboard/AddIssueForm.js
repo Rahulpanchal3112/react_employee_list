@@ -1,16 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import TextField from "@mui/material/TextField";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
 import Button from "@mui/material/Button";
 import { setEmployeeIssues } from "../../Redux/reducers/employeeDataSlice";
-import { setListFilter } from "../../Redux/reducers/employeelistDataSlice";
-import { setFilter } from "../../Redux/reducers/employeeFiterSlice";
 import { setopenFormstate } from "../../Redux/reducers/openformSlice";
 import { setglobalState } from "../../common/dateUtils";
 import { validateIssues } from "../../common/validationUtils";
@@ -24,7 +18,6 @@ const AddIssueForm = () => {
     (state) => state?.employeefilterData?.employeeFilter
   );
   const showForm = useSelector((state) => state?.setForm?.open);
-  const [age, setAge] = React.useState("");
   const [Issues, setIssues] = useState({
     issue: "",
     ProjectName: "",
@@ -169,8 +162,6 @@ const AddIssueForm = () => {
 
 export default AddIssueForm;
 
-const MainHeader = styled.div``;
-
 const Descriptionfield = styled(TextField)`
   width: 100% !important;
   .MuiOutlinedInput-root {
@@ -207,10 +198,6 @@ const Timefield = styled(TextField)`
       box-shadow: 5px 5px 10px #ffe7e0;
     }
   }
-`;
-
-const IssueheaderText = styled.div`
-  text-align: center;
 `;
 
 const MainListing = styled.div`

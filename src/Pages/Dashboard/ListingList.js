@@ -1,13 +1,11 @@
 import { Typography, IconButton, Button } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import TextField from "@mui/material/TextField";
 import { UpdateEmployee } from "../../Redux/reducers/employeeDataSlice";
-import { setListFilter } from "../../Redux/reducers/employeelistDataSlice";
-import { setFilter } from "../../Redux/reducers/employeeFiterSlice";
 import { RemoveEmployeeIssue } from "../../Redux/reducers/employeeDataSlice";
 import DeleteModal from "./DeleteModal";
 import Pagination from "@mui/material/Pagination";
@@ -26,7 +24,6 @@ const ListingList = () => {
   const Employee_selected_data = useSelector(
     (state) => state?.employeefilterData?.employeeFilter
   );
-  const [age, setAge] = React.useState("");
   const [editedIssue, setEditedIssue] = useState({});
   const [editableRow, setEditableRow] = useState(null);
 
@@ -56,8 +53,6 @@ const ListingList = () => {
       id: actualIndex,
     });
   };
-
-  console.log(editableRow, "editableRow");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -321,10 +316,6 @@ const Spantext = styled.div`
   gap: 15px;
   align-items: center !important;
   text-align: center;
-`;
-
-const DescriptionText = styled(TextField)`
-  width: 100% !important;
 `;
 
 const TimeText = styled(TextField)`

@@ -91,6 +91,25 @@ const employeeDataSlice = createSlice({
         }
       }
     },
+
+    setCopyOfEmployeeData: (state, action) => {
+      console.log(action.payload, "action.payload");
+      const { user, Issues } = action.payload;
+
+      console.log(user, "user");
+      console.log(Issues, "Issues");
+
+      const foundUserIndex = state.users.findIndex(
+        (userData) => userData.user === user
+      );
+      if (foundUserIndex !== -1) {
+        const userIssues = state.users[foundUserIndex].Issues;
+        Issues.forEach((newIssue) => {
+          userIssues.push(newIssue);
+        });
+        saveStateToLocalStorage(state.users);
+      }
+    },
   },
 });
 
@@ -110,4 +129,5 @@ export const {
   AddNewEmployee,
   UpdateEmployee,
   RemoveEmployeeIssue,
+  setCopyOfEmployeeData,
 } = employeeDataSlice.actions;
