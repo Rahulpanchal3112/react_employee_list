@@ -22,6 +22,8 @@ const ListingList = () => {
   const employeeData = useSelector(
     (state) => state?.employeelistfilterData?.employeeListFilter
   );
+
+  console.log("employeeData -->", employeeData);
   const dispatch = useDispatch();
   const userSelected_date = useSelector(
     (state) => state?.selectedDate?.userSelectDate
@@ -130,13 +132,20 @@ const ListingList = () => {
   const [currentTime] = useState(new Date());
   const startTime = new Date();
   console.log("startTime", startTime);
-  startTime.setHours(11, 0, 0); // Set the start time to 04:00 PM (16:00 in 24-hour format)
+  startTime.setHours(11, 0, 0);
   console.log("startTime.getTime()", startTime.getTime());
+
   const calculateTimeDifference = () => {
     const differenceInMillis = currentTime.getTime() - startTime.getTime();
-    const diffInHours = Math.floor(differenceInMillis / (1000 * 60 * 60)); // Convert milliseconds to whole hours
+    const diffInHours = Math.floor(differenceInMillis / (1000 * 60 * 60));
+    const remainingMillis = differenceInMillis - diffInHours * 60 * 60 * 1000;
+    const diffInMinutes = Math.floor(remainingMillis / (1000 * 60));
 
-    return diffInHours;
+    const formattedMinutes =
+      diffInMinutes < 10 ? `0${diffInMinutes}` : `${diffInMinutes}`;
+    const formattedDifference = `${diffInHours}:${formattedMinutes}`;
+
+    return formattedDifference;
   };
 
   const difference = calculateTimeDifference();
@@ -230,13 +239,17 @@ const ListingList = () => {
                   ) : (
                     <>
                       <ProjectList>{list_data?.ProjectName}</ProjectList>
-                      <ActualTime>{list_data?.ActualTime} hours</ActualTime>
+                      <ActualTime>
+                        {list_data?.ActualTime
+                          ? `${list_data?.ActualTime} hours`
+                          : ""}
+                      </ActualTime>
                       <EstimetedTime>
                         {list_data?.EstimatedTime} hours
                       </EstimetedTime>
                       <StatusIcon>
                         <Stack spacing={3} direction="row">
-                          {difference >= list_data?.EstimatedTime ? (
+                          {difference <= list_data?.EstimatedTime ? (
                             <SuccessBadgeIcon
                               color="secondary"
                               badgeContent=" "

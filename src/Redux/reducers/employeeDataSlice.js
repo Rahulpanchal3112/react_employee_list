@@ -110,6 +110,12 @@ const employeeDataSlice = createSlice({
         saveStateToLocalStorage(state.users);
       }
     },
+
+    RemoveEmployee: (state, action) => {
+      console.log(action?.payload, "action-->");
+      state.users.splice(action?.payload, 1);
+      saveStateToLocalStorage(state.users);
+    },
   },
 });
 
@@ -130,4 +136,5 @@ export const {
   UpdateEmployee,
   RemoveEmployeeIssue,
   setCopyOfEmployeeData,
+  RemoveEmployee,
 } = employeeDataSlice.actions;

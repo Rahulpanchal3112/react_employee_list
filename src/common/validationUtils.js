@@ -1,5 +1,6 @@
 // validationUtils.js
-export const isValidNumber = (input) => /^\d{1,2}$/.test(input);
+export const isValidNumber = (input) =>
+  /^(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/.test(input);
 
 export const validateIssues = (Issues) => {
   let isValid = true;
@@ -23,19 +24,18 @@ export const validateIssues = (Issues) => {
     isValid = false;
   }
 
-  if (!Issues.ActualTime) {
-    errors.actualTime = "Required Field";
-    isValid = false;
-  } else if (!isValidNumber(Issues.ActualTime)) {
-    errors.actualTime = "Invalid Time Hours";
-    isValid = false;
+  if (Issues.ActualTime !== "") {
+    if (!isValidNumber(Issues.ActualTime)) {
+      errors.actualTime = "Time Hours Should Be Ex:2:00 This Format";
+      isValid = false;
+    }
   }
 
   if (!Issues.EstimatedTime) {
     errors.estimatedTime = "Required Field";
     isValid = false;
   } else if (!isValidNumber(Issues.EstimatedTime)) {
-    errors.estimatedTime = "Invalid Time Hours";
+    errors.estimatedTime = "Time Hours Should Be Ex:2:00 This Format";
     isValid = false;
   }
 

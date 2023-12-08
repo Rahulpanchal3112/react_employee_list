@@ -1,7 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
+import moment from "moment";
+
+const originalDate = new Date();
+const formattedDate = moment(originalDate).format("DD-MM-YYYY");
 
 const initialState = {
-  userSelectDate: "",
+  userSelectDate: formattedDate,
 };
 
 const SavedateSlice = createSlice({

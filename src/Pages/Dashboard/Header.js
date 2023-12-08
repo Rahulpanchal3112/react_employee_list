@@ -21,6 +21,7 @@ import TextField from "@mui/material/TextField";
 import { AddNewEmployee } from "../../Redux/reducers/employeeDataSlice";
 import { setCopyOfEmployeeData } from "../../Redux/reducers/employeeDataSlice";
 import { setglobalState } from "../../common/dateUtils";
+import ListAllEmployeeModal from "./ListAllEmployeeModal";
 
 const style = {
   position: "absolute",
@@ -44,6 +45,7 @@ const Header = () => {
   const [copyEmployeedata, setCopyEmployeedata] = useState("");
   const [openDatepicker, setOpenDatepicker] = useState(false);
   const [copyDate, setCopydate] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -73,19 +75,40 @@ const Header = () => {
     if (filterdata.length > 0) {
       dispatch(setFilter(filterdata[0]));
       setEmployeeData(filterdata[0]?.Issues);
+      setUpdateDate(userSelected_date, filterdata[0]);
     }
+
     setDateError(false);
-    dispatch(setListFilter({}));
-    dispatch(setSelectedDate(""));
+    // dispatch(setListFilter({}));
+    // dispatch(setSelectedDate(""));
   };
 
-  const setDate = (date) => {
-    let Comparedate = moment(date).format("DD-MM-YYYY");
+  const setUpdateDate = (date, Employee_selected_data) => {
+    //let Comparedate = moment(date).format("DD-MM-YYYY");
+    let Comparedate = date;
+
+    console.log("Comparedate", Comparedate);
     dispatch(setSelectedDate(Comparedate));
     setShowButton(false);
     const Datewise_filter_issues = {
       ...Employee_selected_data,
-      Issues: Employee_selected_data?.Issues.filter(
+      Issues: Employee_selected_data?.Issues?.filter(
+        (issue) => issue.Date === Comparedate
+      ),
+    };
+
+    dispatch(setListFilter(Datewise_filter_issues));
+  };
+
+  const setDate = (date) => {
+    let Comparedate = moment(date).format("DD-MM-YYYY");
+
+    console.log("Comparedate", Comparedate);
+    dispatch(setSelectedDate(Comparedate));
+    setShowButton(false);
+    const Datewise_filter_issues = {
+      ...Employee_selected_data,
+      Issues: Employee_selected_data?.Issues?.filter(
         (issue) => issue.Date === Comparedate
       ),
     };
@@ -147,7 +170,15 @@ const Header = () => {
     setOpenDatepicker(!openDatepicker);
   };
 
-  console.log("employeeFilterlistData", employeeFilterlistData);
+  const handleListModalOpen = () => {
+    setIsModalOpen(true);
+  };
+
+  console.log("userSelected_date", userSelected_date);
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <>
@@ -156,13 +187,13 @@ const Header = () => {
           <DropdownList>
             <Box sx={{ minWidth: 120 }}>
               <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">Employees</InputLabel>
+                <InputLabel id="demo-simple-select-label">Employee</InputLabel>
 
                 <SelectDropdown
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={age}
-                  label="Employees"
+                  label="Employee"
                   onChange={handleChange}
                 >
                   {data && data.length > 0
@@ -185,20 +216,38 @@ const Header = () => {
               value={userSelected_date}
               onChange={(date) => setDate(date)}
               placeholderText="Select Date"
-              disabled={dateError}
+              // disabled={dateError}
             />
           </div>
 
-          {!openDatepicker && (
-            <div>
-              <StyledButton
-                variant="contained"
-                onClick={handleOpen}
-                sx={{ textTransform: "capitalize" }}
-              >
-                Add Employee
-              </StyledButton>
-            </div>
+          {Object.keys(employeeFilterlistData).length === 0 && (
+            <>
+              <div>
+                <StyledButton
+                  variant="contained"
+                  onClick={handleOpen}
+                  sx={{ textTransform: "capitalize" }}
+                >
+                  Add Employee
+                </StyledButton>
+              </div>
+              <div>
+                <StyledButton
+                  variant="contained"
+                  onClick={handleListModalOpen}
+                  sx={{ textTransform: "capitalize" }}
+                >
+                  View Employee
+                </StyledButton>
+              </div>
+            </>
+          )}
+
+          {isModalOpen && (
+            <ListAllEmployeeModal
+              open={isModalOpen}
+              onClose={handleCloseModal}
+            />
           )}
 
           {!showButton && (
