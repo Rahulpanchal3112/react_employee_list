@@ -105,7 +105,7 @@ const AddIssueForm = () => {
             <ProjectName>
               <Timefield
                 id="outlined-basic"
-                placeholder="Project Name"
+                placeholder="ProjectName"
                 variant="outlined"
                 name="ProjectName"
                 onChange={handleChange}
