@@ -23,7 +23,6 @@ const ListingList = () => {
     (state) => state?.employeelistfilterData?.employeeListFilter
   );
 
-  console.log("employeeData -->", employeeData);
   const dispatch = useDispatch();
   const userSelected_date = useSelector(
     (state) => state?.selectedDate?.userSelectDate
@@ -51,7 +50,6 @@ const ListingList = () => {
 
   const handleEdit = (item_index) => {
     const actualIndex = page * rowsperpage + item_index;
-    console.log("actualIndex", actualIndex);
     setEditableRow(actualIndex === editableRow ? null : actualIndex);
     const singleEmployeeData = employeeData?.Issues[actualIndex];
     setEditedIssue({
@@ -131,9 +129,7 @@ const ListingList = () => {
 
   const [currentTime] = useState(new Date());
   const startTime = new Date();
-  console.log("startTime", startTime);
   startTime.setHours(11, 0, 0);
-  console.log("startTime.getTime()", startTime.getTime());
 
   const calculateTimeDifference = () => {
     const differenceInMillis = currentTime.getTime() - startTime.getTime();
@@ -150,7 +146,45 @@ const ListingList = () => {
 
   const difference = calculateTimeDifference();
 
-  console.log("difference", difference);
+  var abc;
+  const ChangeTimeDateformat = async (EstimatedTime) => {
+    if (EstimatedTime === "12:00") {
+      abc = "1:00";
+    } else {
+      const currentTime = EstimatedTime;
+
+      const [hours, minutes] = currentTime.split(":").map(Number);
+
+      const currentDate = new Date();
+      currentDate.setHours(hours);
+      currentDate.setMinutes(minutes);
+
+      currentDate.setHours(currentDate.getHours() + 1);
+
+      const updatedHours = currentDate.getHours();
+      const updatedMinutes = currentDate.getMinutes();
+
+      const formattedHours =
+        updatedHours === 0
+          ? "12"
+          : String(updatedHours > 12 ? updatedHours - 12 : updatedHours);
+      const formattedMinutes = String(updatedMinutes).padStart(2, "0");
+
+      abc = `${formattedHours}:${formattedMinutes}`;
+    }
+  };
+
+  function getTimeDifference(ends) {
+    const startDate = new Date(`01/01/2000 11:00 AM`);
+    const endDate = new Date(`01/01/2000 ${ends} PM`);
+
+    const differenceMs = endDate - startDate;
+
+    const hours = Math.floor(differenceMs / (1000 * 60 * 60));
+    const minutes = Math.floor((differenceMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    return `${hours}:${minutes.toString().padStart(2, "0")}`;
+  }
 
   return (
     <>
@@ -178,7 +212,17 @@ const ListingList = () => {
         ).map((list_data, index) => {
           const actualIndex = page * rowsperpage + index;
           const isEditable = editableRow === actualIndex;
+          ChangeTimeDateformat(list_data?.EstimatedTime);
 
+          var formattedActualTime;
+          var formattedEstimatedTime;
+          formattedActualTime = getTimeDifference(list_data?.ActualTime);
+          formattedEstimatedTime = getTimeDifference(list_data?.EstimatedTime);
+
+          console.log("formattedActualTime", formattedActualTime);
+          console.log("formattedEstimitedTime", formattedEstimatedTime);
+
+          // console.log("difference", difference);
           return (
             <React.Fragment key={index}>
               <Listingdiv>
@@ -249,21 +293,22 @@ const ListingList = () => {
                       </EstimetedTime>
                       <StatusIcon>
                         <Stack spacing={3} direction="row">
-                          {difference <= list_data?.EstimatedTime ? (
+                          {list_data?.ActualTime &&
+                          formattedActualTime <= formattedEstimatedTime ? (
                             <SuccessBadgeIcon
                               color="secondary"
                               badgeContent=" "
                             >
                               {circle}
                             </SuccessBadgeIcon>
-                          ) : (
+                          ) : list_data?.ActualTime ? (
                             <FailureBadgeIcon
                               color="secondary"
                               badgeContent=" "
                             >
                               {circle}
                             </FailureBadgeIcon>
-                          )}
+                          ) : null}
                         </Stack>
                       </StatusIcon>
                     </>

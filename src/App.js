@@ -25,12 +25,10 @@ function App() {
     dispatch(setEmployees(JSON.parse(Getdata)));
     setLoading(true);
   };
-  return (
-    <>
-      {loading && <Dashboard />}
-      {/* Render Dashboard only when loading is false */}
-    </>
-  );
+
+  console.log(loading, "loading");
+
+  return <>{loading && <Dashboard />}</>;
 }
 
 export default App;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -66,8 +66,12 @@ const Header = () => {
   const [age, setAge] = React.useState("");
   const [employeeData, setEmployeeData] = useState();
 
-  const handleChange = (event) => {
-    let user = event?.target?.value;
+  const get_selectedUser = localStorage.getItem("selectedUser");
+
+  const handleChange = (username) => {
+    console.log("username", username);
+    let user = username;
+    localStorage.setItem("selectedUser", user);
     setAge(user);
     const filterdata = data?.filter((item) => {
       return user === item?.user;
@@ -87,7 +91,6 @@ const Header = () => {
     //let Comparedate = moment(date).format("DD-MM-YYYY");
     let Comparedate = date;
 
-    console.log("Comparedate", Comparedate);
     dispatch(setSelectedDate(Comparedate));
     setShowButton(false);
     const Datewise_filter_issues = {
@@ -103,7 +106,6 @@ const Header = () => {
   const setDate = (date) => {
     let Comparedate = moment(date).format("DD-MM-YYYY");
 
-    console.log("Comparedate", Comparedate);
     dispatch(setSelectedDate(Comparedate));
     setShowButton(false);
     const Datewise_filter_issues = {
@@ -174,11 +176,19 @@ const Header = () => {
     setIsModalOpen(true);
   };
 
-  console.log("userSelected_date", userSelected_date);
-
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
+
+  useEffect(() => {
+    if (get_selectedUser) {
+      // Execute your code here when get_selectedUser is not empty
+      handleChange(get_selectedUser);
+      // Add the code that you want to run when get_selectedUser is not empty
+    }
+  }, [get_selectedUser]);
+
+  console.log("employeeFilterlistData", employeeFilterlistData);
 
   return (
     <>
@@ -188,13 +198,12 @@ const Header = () => {
             <Box sx={{ minWidth: 120 }}>
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label">Employee</InputLabel>
-
                 <SelectDropdown
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={age}
                   label="Employee"
-                  onChange={handleChange}
+                  onChange={(event) => handleChange(event?.target?.value)}
                 >
                   {data && data.length > 0
                     ? data?.map((emp_data) => {
@@ -220,7 +229,7 @@ const Header = () => {
             />
           </div>
 
-          {Object.keys(employeeFilterlistData).length === 0 && (
+          {employeeFilterlistData?.Issues?.length === 0 && (
             <>
               <div>
                 <StyledButton

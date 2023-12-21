@@ -62,7 +62,6 @@ const employeeDataSlice = createSlice({
               ActualTime,
               Date,
             };
-
             saveStateToLocalStorage(state.users);
           }
         }
@@ -85,7 +84,6 @@ const employeeDataSlice = createSlice({
 
           if (indexToDelete !== -1) {
             foundUser.Issues.splice(indexToDelete, 1);
-
             saveStateToLocalStorage(state.users);
           }
         }
@@ -93,12 +91,7 @@ const employeeDataSlice = createSlice({
     },
 
     setCopyOfEmployeeData: (state, action) => {
-      console.log(action.payload, "action.payload");
       const { user, Issues } = action.payload;
-
-      console.log(user, "user");
-      console.log(Issues, "Issues");
-
       const foundUserIndex = state.users.findIndex(
         (userData) => userData.user === user
       );
@@ -112,7 +105,6 @@ const employeeDataSlice = createSlice({
     },
 
     RemoveEmployee: (state, action) => {
-      console.log(action?.payload, "action-->");
       state.users.splice(action?.payload, 1);
       saveStateToLocalStorage(state.users);
     },
